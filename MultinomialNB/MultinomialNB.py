@@ -1,9 +1,20 @@
+"""
+    离散型贝叶斯框架
+"""
 from Basic import *
+from Util import DataUtil
+import time
+import matplotlib.pyplot as plt
+# 进行一些设置是的matplotlib能够显示中文
+from pylab import mpl
+
 class MultinomialNB(NaiveBayes):
     def feed_data(self, x, y, sample_weight=None):
         if isinstance(x, list):
+            # list 转置
             features = map(list, zip(*x))
         else:
+            # 数组可直接转置
             features = x.T
         # 利用Python中内置的高级数据结构——集合，获取各个纬度的特征和类别种类
         # 为了利用bincount方法来优化算法，将所有特征从0开始数值化
@@ -26,7 +37,7 @@ class MultinomialNB(NaiveBayes):
         self._x, self._y = x, y
         self._labelled_x, self._label_zip = labelled_x, list(zip(labels, labelled_x))
         (self._cat_counter, self._feat_dics, self._n_possibilities) = (cat_counter, feat_dics, n_possibilities)
-        self.label_dic = {i: _l for _l, i in label_dic.items()}
+        self.label_dic = {i: _l for _l, i in label_dic.items()} # 反向字典
         # 调用处理样本权重的函数，以更新记录条件概率的数组
         self.feed_sample_weight(sample_weight)
 
@@ -54,7 +65,7 @@ class MultinomialNB(NaiveBayes):
         for dim, n_possibilities in enumerate(self._n_possibilities):
             data[dim] = [[
                 (self._con_counter[dim][c][p] + lb) / (self._cat_counter[c] + lb * n_possibilities) for p in range(n_possibilities)
-            ] for c in range(n_possibilities)]
+            ] for c in range(n_category)]
         self._data = [np.array(dim_info) for dim_info in data]
         # 利用data生成决策函数
         def func(input_x, tar_category):
@@ -73,3 +84,57 @@ class MultinomialNB(NaiveBayes):
         for j, char in enumerate(x):
             x[j] = self._feat_dics[j][char]
         return x
+
+    def visualize(self, save=False):
+        # 将字体设置为仿宋
+        mpl.rcParams['font.sans-serif'] = ['FangSong']
+        mpl.rcParams['axes.unicode_minus'] = False
+        colors = plt.cm.Paired([i / len(self.label_dic) for i in range(len(self.label_dic))])
+        colors = {cat : color for cat, color in zip(self.label_dic.values(), colors)}
+        # 利用转换字典定义其“反字典”，后面可视化会用
+        rev_feat_dics = [{_val: _key for _key, _val in _feat_dic.items()} for _feat_dic in self._feat_dics]
+        for j in range(len(self._n_possibilities)):
+            rev_dic = rev_feat_dics[j]
+            sj = self._n_possibilities[j]
+            tmp_x = np.arange(1, sj + 1)
+            title = "$j = {}, S_j = {}$".format(j + 1, sj)
+            plt.figure()
+            plt.title(title)
+            for c in range(len(self.label_dic)):
+                plt.bar(tmp_x - 0.35 * c, self._data[j][c, :], width=0.35,
+                        facecolor=colors[self.label_dic[c]], edgecolor="white",
+                        label=u"class: {}".format(self.label_dic[c]))
+            plt.xticks([i for i in range(sj + 2)], [""] + [rev_dic[i] for i in range(sj)] + [""])
+            plt.ylim(0, 1.0)
+            plt.legend()
+            if not save:
+                plt.show()
+            else:
+                plt.savefig("d{}".format(j + 1))
+
+
+
+if __name__ == '__main__':
+
+    # 读入数据
+    _x, _y = DataUtil.get_dataset("name", "C:\Program Files\Git\MachineLearning\_Data\mushroom.txt", tar_idx=0)
+    # 实例化模型并进行训练、同时记录整个过程花费的时间
+    learning_time = time.time()
+    nb = MultinomialNB()
+
+    nb.fit(_x, _y)
+    learning_time = time.time() - learning_time
+    # 评估模型的表现，同时记录评估过程花费的时间
+    estimation_time = time.time()
+    nb.evaluate(_x, _y)
+    estimation_time = time.time() - estimation_time
+    # 将记录下来的时间输出
+    print(
+        "Model building : {:12.6} s\n"
+        "Estimation     : {:12.6} s\n"
+        "Total          : {:12.6} s".format(
+            learning_time, estimation_time,
+            learning_time + estimation_time
+        )
+    )
+    nb.visualize()

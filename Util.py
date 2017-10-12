@@ -7,9 +7,8 @@ class DataUtil:
         # 将编码设置为utf-8以便读入中文等特殊字符
         with open(path, "r", encoding="utf8") as file:
             # 如果是气球数据集的话，直接以逗号分隔数据即可
-            if "balloon" in name:
-                for sample in file:
-                    x.append(sample.strip().split(","))
+            for sample in file:
+                x.append(sample.strip().split(","))
         # 默认打乱数据
         if shuffile:
             np.random.shuffle(x)
