@@ -117,7 +117,7 @@ class MultinomialNB(NaiveBayes):
 if __name__ == '__main__':
 
     # 读入数据
-    _x, _y = DataUtil.get_dataset("name", "C:\Program Files\Git\MachineLearning\_Data\mushroom.txt", tar_idx=0)
+    _x, _y = DataUtil.get_dataset("name", "E:\Git\MachineLearning\_Data\mushroom.txt", tar_idx=0)
     # 实例化模型并进行训练、同时记录整个过程花费的时间
     learning_time = time.time()
     nb = MultinomialNB()
@@ -137,4 +137,3 @@ if __name__ == '__main__':
             learning_time + estimation_time
         )
     )
-    nb.visualize()

@@ -3,7 +3,7 @@ class DataUtil:
     # 定义一个方法使其能从文件中读取数据
     # 该方法接受五个参数：数据集的名字，数据集的路径，训练样本数，类别所在列，是否打乱数据
     @staticmethod
-    def get_dataset(name, path, train_num=None, tar_idx=None, shuffile=True):
+    def get_dataset(name, path, train_num=None, tar_idx=None, shuffile=False):
         x = []
         # 将编码设置为utf-8以便读入中文等特殊字符
         with open(path, "r", encoding="utf8") as file:
@@ -24,3 +24,31 @@ class DataUtil:
         return (x[:train_num], y[:train_num]), (x[train_num:], y[train_num:])
 
     @staticmethod
+    def quantize_data(x, y, wc, continuous_rate=0.1, separate=False):
+        if isinstance(x, list):
+            xt = map(list, zip(*x))
+        else:
+            xt = x.T
+        features = [set(feat) for feat in xt]
+
+        if wc is None:
+            wc = np.array([len(feat) >= (continuous_rate * len(y)) for feat in features])
+        elif not wc.all:
+            wc = np.array([False] * len(xt))
+        else:
+            wc = np.asarray(wc) # asarray 将链表转换成数组
+        feat_dics = [{_l: _i for _i, _l in enumerate(feat)} if not wc[i] else None for i, feat in enumerate(features)]
+
+        if not separate:
+            if np.all(~wc):
+                dtype = np.int
+            else:
+                dtype = np.float32
+            x = np.array([[feat_dics[i][l] if not wc[i] else l for i, l in enumerate(sample)] for sample in x], dtype=dtype)
+        else:
+            x = np.array([[feat_dics[i][l] if not wc[i] else l for i, l in enumerate(sample)] for sample in x], dtype=np.float32)
+            x = (x[:, ~wc].astype(np.int), x[:, wc])
+        label_dic = {l: i for i, l in enumerate(set(y))}
+        y = np.array([label_dic[yy] for yy in y], dtype=np.int8)
+        label_dic = {i: l for l, i in label_dic.items()}
+        return  x, y, wc, features, feat_dics, label_dic
