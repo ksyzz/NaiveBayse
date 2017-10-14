@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     train_num = 40000
     data_time = time.time()
-    (x_train, y_train) = DataUtil.get_dataset("bank", "E:\Git\MachineLearning\_Data\\bank1.0.txt")
+    (x_train, y_train), (x_test, y_test) = DataUtil.get_dataset("bank", "E:\Git\MachineLearning\_Data\\bank1.0.txt", train_num=train_num)
     data_time = time.time() - data_time
     learning_time = time.time()
     nb = MergedNB(whether_continuous=whether_continuous)
@@ -92,6 +92,7 @@ if __name__ == '__main__':
     learning_time = time.time() - learning_time
     estimation_time = time.time()
     nb.evaluate(x_train, y_train)
+    nb.evaluate(x_test, y_test)
     estimation_time = time.time() - estimation_time
     print(
         "Data cleaning   : {:12.6} s\n"
