@@ -34,7 +34,8 @@ class GaussianNB(NaiveBayes):
         data = [GaussianFunction.gaussian_distribution(self._labelled_x, n_category, dim) for dim in range(len(self._x.T))]
         self._data = data
         def func(input_x, tar_category):
-            rs = 1
+            input_x = np.atleast_2d(input_x).T
+            rs = np.ones(input_x.shape[1])
             for d, xx in enumerate(input_x):
                 rs *= data[d][tar_category](xx)
             return rs * p_category[tar_category]

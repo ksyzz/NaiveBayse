@@ -2,10 +2,9 @@
     测试python语法
 """
 import numpy as np
-a = np.array([2, 1, 3, 4, 6, 7])
-b = np.array([True, False, True, False, True, True])
-for i, label in enumerate(b):
-    print(a[label])
-    print("-----")
+a = np.array([2, 1, 2, 1, 0, 1])
+b = np.array([10, 11, 22])
+print(b[a])
+
 
 # print(np.sum(features))

@@ -2,13 +2,13 @@
     正态分布相关计算类
 """
 import numpy as np
-from math import pi, exp
+from math import pi
 sqrt_pi = (2 * pi) ** 0.5
 class GaussianFunction:
      # 高斯分布密度函数
      @staticmethod
      def gaussian(x, miu, sigma):
-         return exp(-(x - miu) ** 2 / 2 * sigma ** 2) / (sqrt_pi * sigma)
+         return np.exp(-(x - miu) ** 2 / 2 * sigma ** 2) / (sqrt_pi * sigma)
 
      # 定义极大似然估计的函数
      # 参数n_category代表y的种类数量
