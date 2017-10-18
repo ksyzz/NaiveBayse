@@ -53,14 +53,14 @@ class MergedNB(NaiveBayes):
     def _fit(self, lb):
         self._multinomial.fit()
         self._gaussian.fit()
-        p_category = self._multinomial.get_prior_probability(lb)
+        self._p_category = self._multinomial.get_prior_probability(lb)
         discrete_func, continuous_func = self._multinomial._func, self._gaussian._func
         def func(input_x, tar_category):
             input_x = np.array(input_x)
-            input_x = np.atleast_2d(input_x).T
+            input_x = np.atleast_2d(input_x)
             # 由于两个模型都乘了先验概率，所以需要除一个
             return discrete_func(input_x[:, self._whether_discrete].astype(np.int),
-                                 tar_category) * continuous_func(input_x[:, self._wheter_continuous], tar_category) / p_category[tar_category]
+                                 tar_category) * continuous_func(input_x[:, self._wheter_continuous], tar_category) / self._p_category[tar_category]
         return func
 
     def _transfer_x(self, x):
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     for cl in continuous_lst:
         whether_continuous[cl] = True
 
-    train_num = 60000
+    train_num = 40000
     data_time = time.time()
     (x_train, y_train), (x_test, y_test) = DataUtil.get_dataset("bank", "C:\Program Files\Git\MachineLearning\_Data\\bank1.0.txt", train_num=train_num)
     data_time = time.time() - data_time

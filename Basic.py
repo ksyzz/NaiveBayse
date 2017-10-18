@@ -79,7 +79,6 @@ class NaiveBayes:
         if not get_raw_result:
             return np.array([self.label_dic[arg] for arg in m_arg])
         return m_possibility
-
     #定义能对新数据进行评估的方法，这里暂时以简单的输出准确率作为演示
     def evaluate(self, x, y):
         y_pred = self.predict(x)
