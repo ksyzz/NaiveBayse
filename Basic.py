@@ -64,21 +64,8 @@ class NaiveBayes:
 
     #定义预测多样本的函数，本质是不断调用上面定义的predict_one函数
     def predict(self, x, get_raw_result=False):
-        #-----向量化
-        if isinstance(x, np.ndarray):
-            x = x.tolist()
-        else:
-            x = [xx[:] for xx in x]
-        x = self._transfer_x(x)
-        # 使用向量存储结果
-        m_arg, m_possibility = np.zeros(len(x)), np.zeros(len(x))
-        for i in range(len(self._cat_counter)):
-            p = self._func(x, i)
-            mask = p > m_possibility
-            m_arg[mask], m_possibility[mask] = i, p[mask]
-        if not get_raw_result:
-            return np.array([self.label_dic[arg] for arg in m_arg])
-        return m_possibility
+        return np.array([self.predict_one(xx, get_raw_result) for xx in x])
+
     #定义能对新数据进行评估的方法，这里暂时以简单的输出准确率作为演示
     def evaluate(self, x, y):
         y_pred = self.predict(x)

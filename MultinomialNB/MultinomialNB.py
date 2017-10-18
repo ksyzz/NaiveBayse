@@ -69,27 +69,20 @@ class MultinomialNB(NaiveBayes):
         self._data = [np.array(dim_info) for dim_info in data]
         # 利用data生成决策函数
         def func(input_x, tar_category):
-            # rs = 1
-            # # 遍历各个维度， 利用data和条件独立性假设计算联合条件概率
-            # for d, xx in enumerate(input_x):
-            #     rs *= data[d][tar_category][xx]
-            # # 利用先验概率和联合条件概率计算后验概率
-            # return  rs * p_category[tar_category]
-            # --------- 向量化
-            input_x = np.atleast_2d(input_x).T
-            rs = np.ones(input_x.shape[1])
+            rs = 1
+            # 遍历各个维度， 利用data和条件独立性假设计算联合条件概率
             for d, xx in enumerate(input_x):
-                rs *= self._data[d][tar_category][xx]
-            return rs * p_category[tar_category]
+                rs *= data[d][tar_category][xx]
+            # 利用先验概率和联合条件概率计算后验概率
+            return  rs * p_category[tar_category]
         # 返回决策函数
         return func
 
     # 定义数值化数据的函数
     def _transfer_x(self, x):
         # 遍历每个元素，利用转换字典进行数值化
-        for i, sample in enumerate(x):
-            for j, char in enumerate(sample):
-                x[i][j] = self._feat_dics[j][char]
+        for j, char in enumerate(x):
+            x[j] = self._feat_dics[j][char]
         return x
 
     def visualize(self, save=False):

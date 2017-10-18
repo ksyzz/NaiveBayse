@@ -34,11 +34,9 @@ class GaussianNB(NaiveBayes):
         data = [GaussianFunction.gaussian_distribution(self._labelled_x, n_category, dim) for dim in range(len(self._x.T))]
         self._data = data
         def func(input_x, tar_category):
-            input_x = np.atleast_2d(input_x).T
-            rs = np.ones(input_x.shape[1])
-
+            rs = 1
             for d, xx in enumerate(input_x):
-                rs *= self._data[d][tar_category](xx)
+                rs *= data[d][tar_category](xx)
             return rs * p_category[tar_category]
         return func
 
@@ -49,7 +47,10 @@ class GaussianNB(NaiveBayes):
 if __name__ == '__main__':
     import time
      # 读入数据
-    _x, _y = DataUtil.get_dataset("name", "C:\Program Files\Git\MachineLearning\_Data\mushroom.txt", tar_idx=0)
+    _x, _y = DataUtil.get_dataset("name", "C:\Program Files\Git\MachineLearning\_Data\\bank2.0.txt")
+    gnb = GaussianNB()
+    gnb.fit(_x, _y)
+    gnb.evaluate(_x, _y)
     # nb = MultinomialNB()
     # nb.feed_data(_x, _y)
     # xs, ys = nb["x"].tolist(), nb["y"].tolist()
@@ -59,15 +60,10 @@ if __name__ == '__main__':
     # nb.fit(x_train, y_train)
     # nb.evaluate(x_train, y_train)
     # nb.evaluate(x_test, y_test)
-    gnb = GaussianNB()
-    gnb.feed_data(_x, _y)
-    xs, ys = gnb["x"].tolist(), gnb["y"].tolist()
-    train_num = 6000
-    x_train, x_test = xs[:train_num], xs[train_num:]
-    y_train, y_test = ys[:train_num], ys[train_num:]
-    gnb.fit(x_train, y_train)
-    gnb.evaluate(x_train, y_train)
-    gnb.evaluate(x_test, y_test)
+    # gnb = GaussianNB()
+    # gnb.fit(x_train, y_train)
+    # gnb.evaluate(x_train, y_train)
+    # gnb.evaluate(x_test, y_test)
 
     # 实例化模型并进行训练、同时记录整个过程花费的时间
     # learning_time = time.time()

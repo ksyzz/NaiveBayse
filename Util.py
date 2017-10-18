@@ -3,7 +3,7 @@ class DataUtil:
     # 定义一个方法使其能从文件中读取数据
     # 该方法接受五个参数：数据集的名字，数据集的路径，训练样本数，类别所在列，是否打乱数据
     @staticmethod
-    def get_dataset(name, path, train_num=None, tar_idx=None, shuffile=True):
+    def get_dataset(name, path, train_num=None, tar_idx=None, shuffile=False):
         x = []
         # 将编码设置为utf-8以便读入中文等特殊字符
         with open(path, "r", encoding="utf8") as file:

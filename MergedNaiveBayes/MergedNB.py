@@ -53,25 +53,24 @@ class MergedNB(NaiveBayes):
     def _fit(self, lb):
         self._multinomial.fit()
         self._gaussian.fit()
-        self._p_category = self._multinomial.get_prior_probability(lb)
+        p_category = self._multinomial.get_prior_probability(lb)
         discrete_func, continuous_func = self._multinomial._func, self._gaussian._func
         def func(input_x, tar_category):
             input_x = np.array(input_x)
-            input_x = np.atleast_2d(input_x)
             # 由于两个模型都乘了先验概率，所以需要除一个
-            return discrete_func(input_x[:, self._whether_discrete].astype(np.int),
-                                 tar_category) * continuous_func(input_x[:, self._wheter_continuous], tar_category) / self._p_category[tar_category]
+            # return discrete_func(input_x[self._whether_discrete].astype(np.int),
+            #                      tar_category) * continuous_func(input_x[self._wheter_continuous], tar_category) / p_category[tar_category]
+            return continuous_func(input_x[self._wheter_continuous], tar_category)
         return func
 
     def _transfer_x(self, x):
         _feat_dics = self._multinomial._feat_dics
         idx = 0
-        for j, discrete in enumerate(self._whether_discrete):
-            for i, sample in enumerate(x):
-                if not discrete:
-                    x[i][j] = float(x[i][j])
-                else:
-                    x[i][j] = _feat_dics[idx][sample[j]]
+        for i, discrete in enumerate(self._whether_discrete):
+            if not discrete:
+                x[i] = float(x[i])
+            else:
+                x[i] = _feat_dics[idx][x[i]]
             if discrete:
                 idx += 1
         return x
@@ -84,9 +83,11 @@ if __name__ == '__main__':
     for cl in continuous_lst:
         whether_continuous[cl] = True
 
-    train_num = 40000
+    train_num = 30000
     data_time = time.time()
     (x_train, y_train), (x_test, y_test) = DataUtil.get_dataset("bank", "C:\Program Files\Git\MachineLearning\_Data\\bank1.0.txt", train_num=train_num)
+    #x_train, y_train = DataUtil.get_dataset("bank", "C:\Program Files\Git\MachineLearning\_Data\\bank1.0.txt")
+
     data_time = time.time() - data_time
     learning_time = time.time()
     nb = MergedNB(whether_continuous=whether_continuous)
@@ -94,8 +95,9 @@ if __name__ == '__main__':
     learning_time = time.time() - learning_time
     estimation_time = time.time()
     nb.evaluate(x_train, y_train)
-    nb.evaluate(x_test, y_test)
+    # nb.evaluate(x_test, y_test)
     estimation_time = time.time() - estimation_time
+
     print(
         "Data cleaning   : {:12.6} s\n"
         "Model building  : {:12.6} s\n"
